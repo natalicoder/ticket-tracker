@@ -1,13 +1,22 @@
 import { buildApp } from './app.js';
 import { loadConfig } from './config.js';
+import { createDb } from './db/client.js';
+import { runMigrations } from './db/migrate.js';
+import type { Mailer } from './mail/mailer.js';
 
 async function main(): Promise<void> {
   const config = loadConfig();
-  const app = await buildApp({ config, db: null, mailer: null });
+  const { db, pool } = createDb(config.databaseUrl);
+  await runMigrations(db);
+
+  const mailer: Mailer = { send: async () => {} };
+  const app = await buildApp({ config, db, mailer });
+  app.log.info('migrations applied');
 
   const shutdown = async (signal: string) => {
     app.log.info({ signal }, 'shutting down');
     await app.close();
+    await pool.end();
     process.exit(0);
   };
   process.on('SIGTERM', () => void shutdown('SIGTERM'));
