@@ -77,7 +77,7 @@
 @layer base {
   html {
     @apply bg-bg text-ink antialiased;
-    font-feature-settings: 'tnum' 1, 'ss01' 1;
+    font-feature-settings: 'ss01' 1;
     -webkit-text-size-adjust: 100%;
   }
   body {
