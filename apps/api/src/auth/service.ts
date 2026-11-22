@@ -6,10 +6,10 @@ import type { Db } from '../db/client.js';
 import { users } from '../db/schema.js';
 import { AppError } from '../errors.js';
 import type { Mailer } from '../mail/mailer.js';
-import { verificationEmail } from '../mail/templates.js';
+import { resetPasswordEmail, verificationEmail } from '../mail/templates.js';
 import { burnPasswordCheck, hashPassword, verifyPassword } from './passwords.js';
-import { createSession } from './sessions.js';
-import { consumeEmailToken, issueEmailToken, VERIFY_TOKEN_TTL_MS } from './tokens.js';
+import { createSession, deleteUserSessions } from './sessions.js';
+import { consumeEmailToken, issueEmailToken, RESET_TOKEN_TTL_MS, VERIFY_TOKEN_TTL_MS } from './tokens.js';
 
 export interface AuthDeps {
   db: Db;
@@ -85,4 +85,22 @@ export async function login(deps: AuthDeps, email: string, password: string): Pr
   }
   const sessionToken = await createSession(deps.db, user.id);
   return { user: { id: user.id, email: user.email }, sessionToken };
+}
+
+export async function forgotPassword(deps: AuthDeps, email: string): Promise<void> {
+  const user = await findUserByEmail(deps.db, email);
+  if (!user) return;
+  const token = await issueEmailToken(deps.db, user.id, 'reset', RESET_TOKEN_TTL_MS);
+  await sendMail(deps, user.email, resetPasswordEmail(`${deps.config.appBaseUrl}/reset-password?token=${token}`));
+}
+
+export async function resetPassword(deps: AuthDeps, token: string, password: string): Promise<void> {
+  const userId = await consumeEmailToken(deps.db, token, 'reset');
+  const passwordHash = await hashPassword(password);
+  await deps.db
+    .update(users)
+    // A reset link proves the user controls the inbox, so it also verifies the email.
+    .set({ passwordHash, emailVerifiedAt: sql`coalesce(${users.emailVerifiedAt}, now())` })
+    .where(eq(users.id, userId));
+  await deleteUserSessions(deps.db, userId);
 }

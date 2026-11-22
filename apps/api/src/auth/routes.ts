@@ -1,4 +1,4 @@
-import { EmailBody, LoginBody, SignupBody, TokenBody } from '@ticketing/shared';
+import { EmailBody, LoginBody, ResetPasswordBody, SignupBody, TokenBody } from '@ticketing/shared';
 import type { FastifyContextConfig, FastifyInstance } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { SESSION_COOKIE, SESSION_TTL_MS, deleteSession } from './sessions.js';
@@ -28,6 +28,24 @@ export function authRoutes(deps: Omit<AuthDeps, 'log'>, rateLimit: boolean) {
       async (req, reply) => {
         await auth.resendVerification(d, req.body.email);
         return reply.status(202).send({ status: 'sent' as const });
+      },
+    );
+
+    r.post(
+      '/auth/forgot-password',
+      { schema: { tags, summary: 'Email a password reset link (always 202)', body: EmailBody }, config: limited },
+      async (req, reply) => {
+        await auth.forgotPassword(d, req.body.email);
+        return reply.status(202).send({ status: 'sent' as const });
+      },
+    );
+
+    r.post(
+      '/auth/reset-password',
+      { schema: { tags, summary: 'Set a new password with the token from the reset email', body: ResetPasswordBody }, config: limited },
+      async (req) => {
+        await auth.resetPassword(d, req.body.token, req.body.password);
+        return { status: 'reset' as const };
       },
     );
 
