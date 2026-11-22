@@ -2,6 +2,7 @@ import { useDraggable, useDroppable } from '@dnd-kit/core';
 import { STATE_LABELS, type TicketCardDto, type TicketState } from '@ticketing/shared';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { Plus } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { memo, useRef, type ReactNode } from 'react';
 import { STATE_COLOR } from '../../components/ui/Badge';
 import { cn } from '../../lib/cn';
@@ -16,6 +17,7 @@ interface ColumnProps {
   onOpen: (id: number) => void;
   onNew: (state: TicketState) => void;
   focusedId?: number | null;
+  onFocusCard?: (id: number) => void;
   footer?: ReactNode;
   filtered?: boolean;
 }
@@ -25,11 +27,13 @@ const DraggableCard = memo(function DraggableCard({
   epicTitle,
   onOpen,
   focused,
+  onFocusCard,
 }: {
   card: TicketCardDto;
   epicTitle?: string;
   onOpen: (id: number) => void;
   focused: boolean;
+  onFocusCard?: (id: number) => void;
 }) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: card.id, data: { state: card.state } });
   return (
@@ -45,6 +49,7 @@ const DraggableCard = memo(function DraggableCard({
       aria-roledescription="Draggable ticket"
       tabIndex={0}
       onClick={() => onOpen(card.id)}
+      onFocus={() => onFocusCard?.(card.id)}
       onKeyDown={(e) => {
         if (e.key === 'Enter' && !e.defaultPrevented) {
           e.preventDefault();
@@ -57,7 +62,7 @@ const DraggableCard = memo(function DraggableCard({
   );
 });
 
-function CardList({ cards, epicTitles, onOpen, focusedId }: Pick<ColumnProps, 'cards' | 'epicTitles' | 'onOpen' | 'focusedId'>) {
+function CardList({ cards, epicTitles, onOpen, focusedId, onFocusCard }: Pick<ColumnProps, 'cards' | 'epicTitles' | 'onOpen' | 'focusedId' | 'onFocusCard'>) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const virtual = cards.length > VIRTUALIZE_AFTER;
   const virtualizer = useVirtualizer({
@@ -72,7 +77,9 @@ function CardList({ cards, epicTitles, onOpen, focusedId }: Pick<ColumnProps, 'c
     return (
       <div ref={scrollRef} className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto px-2 pb-2">
         {cards.map((c) => (
-          <DraggableCard key={c.id} card={c} epicTitle={c.epicId ? epicTitles.get(c.epicId) : undefined} onOpen={onOpen} focused={focusedId === c.id} />
+          <motion.div key={c.id} layout="position" transition={{ type: "spring", stiffness: 520, damping: 40, mass: 0.6 }}>
+            <DraggableCard card={c} epicTitle={c.epicId ? epicTitles.get(c.epicId) : undefined} onOpen={onOpen} focused={focusedId === c.id} onFocusCard={onFocusCard} />
+          </motion.div>
         ))}
       </div>
     );
@@ -85,7 +92,7 @@ function CardList({ cards, epicTitles, onOpen, focusedId }: Pick<ColumnProps, 'c
           const c = cards[item.index]!;
           return (
             <div key={item.key} data-index={item.index} ref={virtualizer.measureElement} className="absolute left-0 top-0 w-full pb-2" style={{ transform: `translateY(${item.start}px)` }}>
-              <DraggableCard card={c} epicTitle={c.epicId ? epicTitles.get(c.epicId) : undefined} onOpen={onOpen} focused={focusedId === c.id} />
+              <DraggableCard card={c} epicTitle={c.epicId ? epicTitles.get(c.epicId) : undefined} onOpen={onOpen} focused={focusedId === c.id} onFocusCard={onFocusCard} />
             </div>
           );
         })}
@@ -94,7 +101,7 @@ function CardList({ cards, epicTitles, onOpen, focusedId }: Pick<ColumnProps, 'c
   );
 }
 
-export const Column = memo(function Column({ state, cards, epicTitles, onOpen, onNew, focusedId, footer, filtered }: ColumnProps) {
+export const Column = memo(function Column({ state, cards, epicTitles, onOpen, onNew, focusedId, onFocusCard, footer, filtered }: ColumnProps) {
   const { setNodeRef, isOver, active } = useDroppable({ id: state });
   const fromHere = active?.data.current?.state === state;
   const headingId = `col-${state}`;
@@ -130,7 +137,7 @@ export const Column = memo(function Column({ state, cards, epicTitles, onOpen, o
           {filtered ? 'No matching tickets' : 'Drop tickets here'}
         </div>
       ) : (
-        <CardList cards={cards} epicTitles={epicTitles} onOpen={onOpen} focusedId={focusedId} />
+        <CardList cards={cards} epicTitles={epicTitles} onOpen={onOpen} focusedId={focusedId} onFocusCard={onFocusCard} />
       )}
       {footer && <div className="px-2 pb-2">{footer}</div>}
     </section>

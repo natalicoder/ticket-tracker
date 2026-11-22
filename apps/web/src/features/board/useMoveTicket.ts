@@ -4,6 +4,7 @@ import { useCallback, useRef } from 'react';
 import { toast } from 'sonner';
 import { api, errorMessage } from '../../api/client';
 import { keys } from '../../api/queries';
+import { celebrate } from '../../lib/celebrate';
 
 export interface MoveOptions {
   /** Offer an Undo action in the success toast (default true). */
@@ -55,6 +56,7 @@ export function useMoveTicket(teamId: string) {
                 ? { duration: 5000, action: { label: 'Undo', onClick: () => moveRef.current(id, before.state, { undoable: false }) } }
                 : { duration: 2500 },
             );
+            if (to === 'done') celebrate(id);
             opts.onMoved?.(card);
           }
           void qc.invalidateQueries({ queryKey: key });

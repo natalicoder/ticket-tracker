@@ -30,3 +30,6 @@ globalThis.ResizeObserver ??= RO as unknown as typeof ResizeObserver;
 Element.prototype.scrollIntoView ??= () => {};
 Element.prototype.hasPointerCapture ??= () => false;
 Element.prototype.releasePointerCapture ??= () => {};
+
+// jsdom has no canvas; the confetti burst is decorative.
+vi.mock('canvas-confetti', () => ({ default: vi.fn() }));

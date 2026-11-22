@@ -12,7 +12,7 @@ import {
 } from '@dnd-kit/core';
 import { STATE_LABELS, TICKET_STATES, isTicketState, type TicketCardDto, type TicketState } from '@ticketing/shared';
 import { Plus } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { errorMessage } from '../../api/client';
 import { useBoard, useEpics, useTeams } from '../../api/queries';
@@ -28,6 +28,8 @@ import { Onboarding } from './Onboarding';
 import { PipelineRibbon } from './PipelineRibbon';
 import { TicketCard } from './TicketCard';
 import { useMoveTicket } from './useMoveTicket';
+import { useBoardKeyboard } from './useBoardKeyboard';
+import { dialogOpen, isEditable } from '../palette/useHotkeys';
 import { QuickAdd } from '../ticket/QuickAdd';
 
 function BoardSkeleton() {
@@ -78,6 +80,31 @@ export function BoardPage() {
     [navigate, location, teamId],
   );
   useEffect(() => onCommand((c) => c === 'new-ticket' && newTicket()), [newTicket]);
+
+  // Keyboard navigation: j/k/h/l or arrows, Shift+←/→ to move, Enter to open.
+  const columnList = useMemo(() => TICKET_STATES.map((s) => columns.get(s)!), [columns]);
+  const keyboard = useBoardKeyboard(columnList, { move, open: openTicket });
+  const keyboardRef = useRef(keyboard);
+  keyboardRef.current = keyboard;
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.altKey) return;
+      if (!window.location.pathname.startsWith('/board/') || isEditable(e.target) || dialogOpen()) return;
+      if (document.activeElement?.closest('[aria-roledescription="Draggable ticket"]') && (e.key === ' ' || e.key === 'Enter')) return;
+      keyboardRef.current.onKeyDown(e);
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
+  const focusedId = keyboard.focusedId;
+  useEffect(() => {
+    if (focusedId === null) return;
+    const el = document.querySelector<HTMLElement>(`[data-ticket-id="${focusedId}"]`);
+    if (el && document.activeElement !== el) {
+      el.focus({ preventScroll: true });
+      el.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    }
+  }, [focusedId, columns]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
@@ -148,6 +175,8 @@ export function BoardPage() {
                 cards={columns.get(s)!}
                 epicTitles={epicTitles}
                 onOpen={openTicket}
+                focusedId={focusedId}
+                onFocusCard={keyboard.setFocusedId}
                 onNew={newTicket}
                 filtered={hasFilters(filters)}
                 footer={<QuickAdd teamId={teamId} state={s} epics={epics.data ?? []} />}
