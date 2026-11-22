@@ -1,0 +1,28 @@
+# Test stack. POSTGRES_PASSWORD here is a throwaway value for an ephemeral, unpublished test database, not a secret.
+name: ticketing-test
+
+services:
+  db-test:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_PASSWORD: test
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 1s
+      timeout: 5s
+      retries: 30
+
+  api-test:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+      target: test
+    environment:
+      DATABASE_URL: postgres://postgres:test@db-test:5432/postgres
+      NODE_ENV: test
+    depends_on:
+      db-test:
+        condition: service_healthy
+    command: ["npm", "run", "test", "-w", "apps/api"]
