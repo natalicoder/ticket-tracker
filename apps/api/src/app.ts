@@ -8,6 +8,7 @@ import { jsonSchemaTransform, serializerCompiler } from 'fastify-type-provider-z
 import type { ZodTypeAny } from 'zod';
 import { registerAuthGuard } from './auth/guard.js';
 import { authRoutes } from './auth/routes.js';
+import { commentRoutes } from './comments/routes.js';
 import type { Config } from './config.js';
 import { epicRoutes } from './epics/routes.js';
 import { teamRoutes } from './teams/routes.js';
@@ -75,6 +76,7 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
   await app.register(teamRoutes(db), { prefix: '/api' });
   await app.register(epicRoutes(db), { prefix: '/api' });
   await app.register(ticketRoutes(db), { prefix: '/api' });
+  await app.register(commentRoutes(db), { prefix: '/api' });
 
   return app;
 }
