@@ -1,4 +1,4 @@
-import { index, integer, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import { bigint, index, integer, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 
 // Constraints drizzle-kit cannot express (case-insensitive unique indexes, the same-team
 // composite FK, CHECKs, pg_trgm, modified_at triggers) live in drizzle/0001_constraints_triggers.sql.
@@ -109,6 +109,7 @@ export const ticketEvents = pgTable(
   'ticket_events',
   {
     id: uuid('id').primaryKey().defaultRandom(),
+    seq: bigint('seq', { mode: 'number' }).notNull().generatedAlwaysAsIdentity(),
     ticketId: integer('ticket_id')
       .notNull()
       .references(() => tickets.id, { onDelete: 'cascade' }),
@@ -121,5 +122,5 @@ export const ticketEvents = pgTable(
     toValue: text('to_value'),
     at: ts('at').notNull().defaultNow(),
   },
-  (t) => [index('ticket_events_ticket_at_idx').on(t.ticketId, t.at)],
+  (t) => [index('ticket_events_ticket_seq_idx').on(t.ticketId, t.seq)],
 );

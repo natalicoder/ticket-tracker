@@ -73,6 +73,7 @@ CREATE INDEX "comments_ticket_created_idx" ON "comments" ("ticket_id", "created_
 --> statement-breakpoint
 CREATE TABLE "ticket_events" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"seq" bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
 	"ticket_id" integer NOT NULL REFERENCES "tickets"("id") ON DELETE cascade,
 	"actor_id" uuid NOT NULL REFERENCES "users"("id") ON DELETE restrict,
 	"kind" text NOT NULL,
@@ -82,4 +83,4 @@ CREATE TABLE "ticket_events" (
 	"at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE INDEX "ticket_events_ticket_at_idx" ON "ticket_events" ("ticket_id", "at");
+CREATE INDEX "ticket_events_ticket_seq_idx" ON "ticket_events" ("ticket_id", "seq");

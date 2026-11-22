@@ -11,6 +11,7 @@ import { authRoutes } from './auth/routes.js';
 import type { Config } from './config.js';
 import { epicRoutes } from './epics/routes.js';
 import { teamRoutes } from './teams/routes.js';
+import { ticketRoutes } from './tickets/routes.js';
 import type { Db } from './db/client.js';
 import { AppError, errorBody, errorHandler } from './errors.js';
 import type { Mailer } from './mail/mailer.js';
@@ -73,6 +74,7 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
   await app.register(authRoutes({ db, mailer, config }, config.rateLimit), { prefix: '/api' });
   await app.register(teamRoutes(db), { prefix: '/api' });
   await app.register(epicRoutes(db), { prefix: '/api' });
+  await app.register(ticketRoutes(db), { prefix: '/api' });
 
   return app;
 }

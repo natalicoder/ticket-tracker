@@ -1,5 +1,8 @@
 import { sql } from 'drizzle-orm';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { loadConfig } from '../src/config.js';
+import { createDb } from '../src/db/client.js';
+import { runMigrations } from '../src/db/migrate.js';
 import { APP_TABLES, createTestApp, resetDb, type TestApp } from './helpers.js';
 
 let t: TestApp;
@@ -41,10 +44,23 @@ async function seedEpic(teamId: string): Promise<string> {
 
 describe('fresh database after migrations', () => {
   it('has every app table and no rows in any of them', async () => {
-    // Run before resetDb so this checks the state migrations leave behind.
-    for (const table of APP_TABLES) {
-      const [r] = await rows<{ n: string }>(sql`select count(*)::text as n from ${sql.identifier(table)}`);
-      expect(r!.n, table).toBe('0');
+    // Migrate a brand-new database so the result does not depend on other test files.
+    const name = `fresh_${Date.now()}`;
+    await t.db.execute(sql.raw(`create database ${name}`));
+    const url = new URL(loadConfig(process.env).databaseUrl);
+    url.pathname = `/${name}`;
+    const fresh = createDb(url.toString());
+    try {
+      await runMigrations(fresh.db);
+      for (const table of APP_TABLES) {
+        const r = await fresh.db.execute(sql`select count(*)::text as n from ${sql.identifier(table)}`);
+        expect(r.rows[0]!.n, table).toBe('0');
+      }
+      const migrations = await fresh.db.execute(sql`select count(*)::int as n from drizzle.__drizzle_migrations`);
+      expect(migrations.rows[0]!.n).toBe(2);
+    } finally {
+      await fresh.pool.end();
+      await t.db.execute(sql.raw(`drop database ${name}`));
     }
   });
 });
