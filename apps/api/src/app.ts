@@ -9,6 +9,8 @@ import type { ZodTypeAny } from 'zod';
 import { registerAuthGuard } from './auth/guard.js';
 import { authRoutes } from './auth/routes.js';
 import type { Config } from './config.js';
+import { epicRoutes } from './epics/routes.js';
+import { teamRoutes } from './teams/routes.js';
 import type { Db } from './db/client.js';
 import { AppError, errorBody, errorHandler } from './errors.js';
 import type { Mailer } from './mail/mailer.js';
@@ -22,7 +24,7 @@ export interface AppDeps {
 export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
   const { db, config, mailer } = deps;
   const app = Fastify({
-    logger: process.env.NODE_ENV === 'test' ? false : { level: process.env.LOG_LEVEL ?? 'info' },
+    logger: { level: process.env.LOG_LEVEL ?? (process.env.NODE_ENV === 'test' ? 'error' : 'info') },
     trustProxy: true,
     bodyLimit: 256 * 1024,
   });
@@ -69,6 +71,8 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
   });
 
   await app.register(authRoutes({ db, mailer, config }, config.rateLimit), { prefix: '/api' });
+  await app.register(teamRoutes(db), { prefix: '/api' });
+  await app.register(epicRoutes(db), { prefix: '/api' });
 
   return app;
 }
