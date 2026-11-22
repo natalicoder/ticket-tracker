@@ -28,6 +28,7 @@ import { Onboarding } from './Onboarding';
 import { PipelineRibbon } from './PipelineRibbon';
 import { TicketCard } from './TicketCard';
 import { useMoveTicket } from './useMoveTicket';
+import { QuickAdd } from '../ticket/QuickAdd';
 
 function BoardSkeleton() {
   return (
@@ -141,7 +142,16 @@ export function BoardPage() {
         <DndContext sensors={sensors} collisionDetection={closestCorners} onDragStart={onDragStart} onDragEnd={onDragEnd} onDragCancel={() => setDragging(null)} accessibility={{ announcements }}>
           <div className="flex min-h-0 flex-1 snap-x gap-3 overflow-x-auto px-4 py-4 sm:px-6" data-board>
             {TICKET_STATES.map((s) => (
-              <Column key={s} state={s} cards={columns.get(s)!} epicTitles={epicTitles} onOpen={openTicket} onNew={newTicket} filtered={hasFilters(filters)} />
+              <Column
+                key={s}
+                state={s}
+                cards={columns.get(s)!}
+                epicTitles={epicTitles}
+                onOpen={openTicket}
+                onNew={newTicket}
+                filtered={hasFilters(filters)}
+                footer={<QuickAdd teamId={teamId} state={s} epics={epics.data ?? []} />}
+              />
             ))}
           </div>
           <DragOverlay dropAnimation={{ duration: 160, easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)' }}>
