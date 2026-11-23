@@ -8,7 +8,7 @@ A Kanban ticket tracker for small teams. You sign up with email and password, ve
 
 ## Prerequisites
 
-- Docker Desktop (Windows, macOS) or Docker Engine with the Compose v2 plugin (Linux).
+- Docker Desktop (Windows, macOS) or Docker Engine with the Compose v2 plugin (Linux), Compose 2.24 or newer (`docker compose version`).
 - Nothing else. Node, PostgreSQL and the browser test runner all run in containers.
 
 ## Quick start
@@ -44,6 +44,8 @@ Every setting has a working default, so a `.env` file is optional. To change a s
 | `SMTP_HOST` | `mailpit` | SMTP server. |
 | `SMTP_PORT` | `1025` | SMTP port. |
 | `SMTP_SECURE` | `false` | `true` for implicit TLS (port 465). STARTTLS is negotiated automatically when offered. |
+| `SMTP_IGNORE_TLS` | `false` | `true` never upgrades to TLS, even when the server offers STARTTLS. |
+| `SMTP_TLS_REJECT_UNAUTHORIZED` | `true` | `false` accepts a server certificate that is self-signed or issued for another name, as internal relays often have. |
 | `SMTP_USER` / `SMTP_PASS` | empty | SMTP credentials. Leave empty for relays that need no authentication. |
 | `MAIL_FROM` | `Ticketing <no-reply@ticketing.local>` | Sender address. |
 | `COOKIE_SECURE` | `false` | Set to `true` when the app is served over HTTPS. |
@@ -59,6 +61,8 @@ Put this in `.env` and restart with `docker compose up --build`:
 SMTP_HOST=relay1.dataart.com
 SMTP_PORT=25
 SMTP_SECURE=false
+# If sending fails with a certificate error, the relay uses an internal certificate:
+# SMTP_TLS_REJECT_UNAUTHORIZED=false
 SMTP_USER=
 SMTP_PASS=
 MAIL_FROM=Ticketing <no-reply@your-domain.example>
@@ -67,6 +71,8 @@ SHOW_MAILPIT_LINK=false
 ```
 
 `APP_BASE_URL` must be an address that the recipient's browser can reach, because the verification link in the email points there. The relay accepts mail only from inside the DataArt network.
+
+If no email arrives, run `docker compose logs api` and look for `failed to send email`. That line includes the SMTP error. Signup still succeeds, and the user can ask for a new link from the login screen once the mail settings are fixed.
 
 ## Architecture
 
@@ -105,7 +111,7 @@ Current results:
 
 | Suite | Result |
 | --- | --- |
-| Shared, API and web unit and integration tests | 30 + 146 + 55 tests pass |
+| Shared, API and web unit and integration tests | 30 + 148 + 55 tests pass |
 | Playwright end-to-end, including axe checks in both themes | 12 tests pass |
 | Board with 300 tickets | First card in 0.4 s; filter responds in under 0.1 s; main-thread tasks stay under 60 ms during a drag; about 70 of the 300 cards are in the DOM at once because long columns are virtualized |
 
@@ -245,7 +251,7 @@ Every row points to the code that implements the requirement and to the test tha
 | Loading, empty, success and error states | Skeletons, empty states, toasts, inline errors | web "invites the user to create the first team when there are none", "shows the server message when a rename conflicts" |
 | Current Chrome, Edge, Firefox | Standard React and CSS, no browser-specific APIs | e2e in Chromium |
 | README with prerequisites, configuration, startup | This file | — |
-| Tests: one backend business flow, one frontend or API flow | 231 unit and integration tests + 12 e2e tests | See "Running tests" |
+| Tests: one backend business flow, one frontend or API flow | 233 unit and integration tests + 12 e2e tests | See "Running tests" |
 
 ### 13. Definition of done
 
