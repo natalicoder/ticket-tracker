@@ -4,6 +4,10 @@ export interface SmtpConfig {
   host: string;
   port: number;
   secure: boolean;
+  /** Never upgrade to TLS with STARTTLS, even when the server offers it. */
+  ignoreTls: boolean;
+  /** Verify the server certificate. Set false for a relay with an internal or mismatched certificate. */
+  tlsRejectUnauthorized: boolean;
   user?: string;
   pass?: string;
   from: string;
@@ -59,6 +63,8 @@ export function loadConfig(env: Env = process.env): Config {
       host: env.SMTP_HOST || 'mailpit',
       port: int(env.SMTP_PORT, 1025),
       secure: bool(env.SMTP_SECURE, false),
+      ignoreTls: bool(env.SMTP_IGNORE_TLS, false),
+      tlsRejectUnauthorized: bool(env.SMTP_TLS_REJECT_UNAUTHORIZED, true),
       user: blankToUndefined(env.SMTP_USER),
       pass: blankToUndefined(env.SMTP_PASS),
       from: env.MAIL_FROM || 'Ticketing <no-reply@ticketing.local>',
