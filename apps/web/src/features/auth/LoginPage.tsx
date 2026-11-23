@@ -19,6 +19,7 @@ export function LoginPage() {
   const next = safeNext(params.get('next'));
   const [formError, setFormError] = useState<string>();
   const [unverified, setUnverified] = useState<string>();
+  const [resendOpen, setResendOpen] = useState(false);
   const {
     register,
     handleSubmit,
@@ -54,8 +55,8 @@ export function LoginPage() {
         </>
       }
     >
-      <form onSubmit={onSubmit} noValidate className="flex flex-col gap-4">
-        <FormError>{formError}</FormError>
+      <div className="flex flex-col gap-4">
+        {/* Resend forms stay outside the login form: nested forms submit the wrong one. */}
         {unverified && (
           <div role="alert" className="rounded-md border border-warn/40 bg-warn-soft p-3">
             <div className="mb-2 flex items-start gap-2 text-sm text-ink">
@@ -65,24 +66,37 @@ export function LoginPage() {
             <ResendForm defaultEmail={unverified} hideEmail />
           </div>
         )}
-        <Field label="Email" error={errors.email?.message}>
-          <Input type="email" autoComplete="email" autoFocus placeholder="you@company.com" {...register('email')} />
-        </Field>
-        <Field
-          label="Password"
-          error={errors.password?.message}
-          aside={
-            <Link to={`/forgot-password?email=${encodeURIComponent(getValues('email') ?? '')}`} className="text-xs font-medium text-accent">
-              Forgot password?
-            </Link>
-          }
-        >
-          <Input type="password" autoComplete="current-password" {...register('password')} />
-        </Field>
-        <Button type="submit" variant="primary" loading={isSubmitting} className="mt-1 w-full justify-center">
-          Log in
-        </Button>
-      </form>
+        <form onSubmit={onSubmit} noValidate className="flex flex-col gap-4">
+          <FormError>{formError}</FormError>
+          <Field label="Email" error={errors.email?.message}>
+            <Input type="email" autoComplete="email" autoFocus placeholder="you@company.com" {...register('email')} />
+          </Field>
+          <Field
+            label="Password"
+            error={errors.password?.message}
+            aside={
+              <Link to={`/forgot-password?email=${encodeURIComponent(getValues('email') ?? '')}`} className="text-xs font-medium text-accent">
+                Forgot password?
+              </Link>
+            }
+          >
+            <Input type="password" autoComplete="current-password" {...register('password')} />
+          </Field>
+          <Button type="submit" variant="primary" loading={isSubmitting} className="mt-1 w-full justify-center">
+            Log in
+          </Button>
+        </form>
+        {!unverified && (resendOpen ? (
+          <div className="rounded-md border border-line bg-sunken/60 p-3">
+            <p className="mb-2 text-sm text-ink-2">Enter your email and we will send a fresh verification link.</p>
+            <ResendForm defaultEmail={getValues('email') ?? ''} />
+          </div>
+        ) : (
+          <button type="button" onClick={() => setResendOpen(true)} className="self-center text-xs font-medium text-accent">
+            Resend verification email
+          </button>
+        ))}
+      </div>
     </AuthLayout>
   );
 }

@@ -8,6 +8,8 @@ async function expectNoSeriousViolations(page: Page, label: string) {
   const serious = results.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical');
   const summary = serious.map((v) => `${v.id}: ${v.help}\n  ${v.nodes.slice(0, 3).map((n) => n.target.join(' ')).join('\n  ')}`).join('\n');
   expect(serious, `${label}\n${summary}`).toEqual([]);
+  // Nested <form>s are invalid HTML and submit the wrong form (this suite once caught that bug).
+  expect(await page.locator('form form').count(), `${label}: nested forms`).toBe(0);
 }
 
 for (const scheme of ['light', 'dark'] as const) {
