@@ -57,8 +57,8 @@
 
 ## 2:45 – 3:00 · Guard rails and quality
 
-1. On **Teams**, the delete button for Payments is disabled. Hover it to see "Team has 1 ticket and 1 epic…". "The API answers 409 for the same case."
-2. Close with: "229 unit and integration tests, 12 Playwright end-to-end tests with axe accessibility checks in light and dark, and CI on every push. The README maps every requirement to its code and its test."
+1. On **Teams**, the delete button for Payments is disabled. Click it: a message says "Team has 1 ticket and 1 epic…". "The API answers 409 for the same case."
+2. Close with: "231 unit and integration tests, 12 Playwright end-to-end tests with axe accessibility checks in light and dark, and CI on every push. The README maps every requirement to its code and its test."
 
 ## If something goes wrong
 

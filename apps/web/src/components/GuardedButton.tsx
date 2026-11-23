@@ -1,9 +1,10 @@
 import { useId, type ReactNode } from 'react';
+import { toast } from 'sonner';
 import { cn } from '../lib/cn';
 import { Tooltip } from './ui/Tooltip';
 
 interface GuardedButtonProps {
-  /** When set, the button is disabled and this reason is shown as a tooltip and exposed as its accessible description. */
+  /** When set, the button is disabled; the reason shows as a tooltip, as a toast on click, and as its accessible description. */
   blockedReason?: string;
   onClick: () => void;
   label: string;
@@ -25,7 +26,7 @@ export function GuardedButton({ blockedReason, onClick, label, children, classNa
         aria-label={label}
         aria-disabled={blocked || undefined}
         aria-describedby={blocked ? id : undefined}
-        onClick={() => !blocked && onClick()}
+        onClick={() => (blocked ? toast.error(blockedReason) : onClick())}
         className={cn(
           'inline-flex h-7 w-7 items-center justify-center rounded-md text-muted transition-colors',
           blocked ? 'cursor-not-allowed opacity-40' : 'hover:bg-danger/10 hover:text-danger',

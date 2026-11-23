@@ -105,7 +105,7 @@ Current results:
 
 | Suite | Result |
 | --- | --- |
-| Shared, API and web unit and integration tests | 30 + 146 + 53 tests pass |
+| Shared, API and web unit and integration tests | 30 + 146 + 55 tests pass |
 | Playwright end-to-end, including axe checks in both themes | 12 tests pass |
 | Board with 300 tickets | First card in 0.4 s; filter responds in under 0.1 s; main-thread tasks stay under 60 ms during a drag; about 70 of the 300 cards are in the DOM at once because long columns are virtualized |
 
@@ -151,7 +151,7 @@ Every row points to the code that implements the requirement and to the test tha
 | List, create, rename, delete teams | `apps/api/src/teams/*`, `TeamsPage.tsx` | API `teams.test.ts` "creates, lists, renames and deletes a team with ISO UTC timestamps" |
 | Id, name, created, modified | `teams` table | same test |
 | Name non-empty after trim, unique case-insensitively | `TeamBody`, unique index on `lower(btrim(name))` | API "rejects a whitespace-only name", "rejects duplicate names that differ only by case or surrounding spaces"; web `TeamsPage.test.tsx` "rejects a blank name without calling the API" |
-| No delete while it has tickets or epics; clear UI message; no cascade | `teams/service.ts` → 409; FKs `ON DELETE RESTRICT`; disabled delete button with reason | API "refuses to delete a team with epics or tickets and reports counts"; `db.test.ts` "refuses to delete a team that still has an epic"; web "disables deleting a team that still has tickets and says why"; e2e "a team that still has an epic cannot be deleted" |
+| No delete while it has tickets or epics; clear UI message; no cascade | `teams/service.ts` → 409; FKs `ON DELETE RESTRICT`; disabled delete button with reason | API "refuses to delete a team with epics or tickets and reports counts"; `db.test.ts` "refuses to delete a team that still has an epic"; web "disables deleting a team that still has tickets and says why", `GuardedButton.test.tsx` "shows the reason as a visible message when a blocked button is clicked"; e2e "a team that still has an epic cannot be deleted" |
 | All verified users manage all teams | No ownership model | — |
 
 ### 5. Epics
@@ -245,7 +245,7 @@ Every row points to the code that implements the requirement and to the test tha
 | Loading, empty, success and error states | Skeletons, empty states, toasts, inline errors | web "invites the user to create the first team when there are none", "shows the server message when a rename conflicts" |
 | Current Chrome, Edge, Firefox | Standard React and CSS, no browser-specific APIs | e2e in Chromium |
 | README with prerequisites, configuration, startup | This file | — |
-| Tests: one backend business flow, one frontend or API flow | 229 unit and integration tests + 12 e2e tests | See "Running tests" |
+| Tests: one backend business flow, one frontend or API flow | 231 unit and integration tests + 12 e2e tests | See "Running tests" |
 
 ### 13. Definition of done
 
