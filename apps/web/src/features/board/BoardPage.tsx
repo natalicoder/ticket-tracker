@@ -167,7 +167,7 @@ export function BoardPage() {
         <Onboarding teamId={teamId} />
       ) : (
         <DndContext sensors={sensors} collisionDetection={closestCorners} onDragStart={onDragStart} onDragEnd={onDragEnd} onDragCancel={() => setDragging(null)} accessibility={{ announcements }}>
-          <div className="flex min-h-0 flex-1 snap-x gap-3 overflow-x-auto px-4 py-4 sm:px-6" data-board>
+          <div className="flex min-h-0 flex-1 snap-x scroll-px-4 gap-3 overflow-x-auto px-4 py-4 sm:scroll-px-6 sm:px-6" data-board>
             {TICKET_STATES.map((s) => (
               <Column
                 key={s}

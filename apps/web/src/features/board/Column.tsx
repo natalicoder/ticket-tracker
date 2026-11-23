@@ -111,7 +111,7 @@ export const Column = memo(function Column({ state, cards, epicTitles, onOpen, o
       aria-labelledby={headingId}
       data-state={state}
       className={cn(
-        'flex h-full min-w-[248px] max-w-[380px] flex-1 basis-0 snap-start flex-col rounded-lg border bg-sunken/70 transition-colors',
+        'flex h-full min-w-[232px] max-w-[380px] flex-1 basis-0 snap-start flex-col rounded-lg border bg-sunken/70 transition-colors',
         isOver && !fromHere ? 'border-accent bg-accent-soft/60' : 'border-transparent',
       )}
     >
