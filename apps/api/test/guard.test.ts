@@ -28,14 +28,14 @@ export const PRIVATE_ROUTES: Array<[method: 'GET' | 'POST' | 'PATCH' | 'DELETE',
   ['POST', '/api/tickets/1/comments'],
   ['PATCH', `/api/comments/${ID}`],
   ['DELETE', `/api/comments/${ID}`],
+  ['GET', '/api/docs'],
+  ['GET', '/api/docs/json'],
   ['GET', '/api/does-not-exist'],
 ];
 
 const PUBLIC_ROUTES: Array<['GET' | 'POST', string]> = [
   ['GET', '/api/health'],
   ['GET', '/api/ready'],
-  ['GET', '/api/docs'],
-  ['GET', '/api/docs/json'],
   ['POST', '/api/auth/signup'],
   ['POST', '/api/auth/login'],
   ['POST', '/api/auth/verify'],

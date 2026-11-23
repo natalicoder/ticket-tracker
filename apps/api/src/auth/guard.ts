@@ -25,7 +25,6 @@ const PUBLIC_ROUTES = new Set([
 export function isPublic(method: string, url: string): boolean {
   const path = url.split('?')[0]!.replace(/\/+$/, '') || '/';
   if (!path.startsWith('/api/') && path !== '/api') return true;
-  if (path === '/api/docs' || path.startsWith('/api/docs/')) return true;
   return PUBLIC_ROUTES.has(`${method === 'HEAD' ? 'GET' : method} ${path}`);
 }
 
