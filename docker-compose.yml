@@ -81,6 +81,11 @@ services:
         VITE_MAILPIT_PORT: ${MAILPIT_PORT:-8025}
     ports:
       - "${WEB_PORT:-8080}:80"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1/ >/dev/null || exit 1"]
+      interval: 3s
+      timeout: 5s
+      retries: 20
     depends_on:
       api:
         condition: service_healthy
