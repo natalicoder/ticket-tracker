@@ -36,6 +36,23 @@ function setup(props: Partial<Parameters<typeof TicketForm>[0]> = {}) {
 }
 
 describe('TicketForm', () => {
+  it('keeps a child form (the comment composer) outside its own form, so submitting it does not submit the ticket', async () => {
+    const childSubmit = vi.fn((e: { preventDefault: () => void }) => e.preventDefault());
+    const { onSubmit } = setup({
+      children: (
+        <form onSubmit={childSubmit}>
+          <button type="submit">Comment</button>
+        </form>
+      ),
+    });
+    await screen.findByLabelText('Epic');
+    expect(document.querySelector('form form')).toBeNull();
+    await userEvent.click(screen.getByRole('button', { name: 'Comment' }));
+    expect(childSubmit).toHaveBeenCalledTimes(1);
+    expect(onSubmit).not.toHaveBeenCalled();
+    expect(screen.queryByText('Title must not be empty')).toBeNull();
+  });
+
   it('clears the epic and lists only the new team’s epics when the team changes', async () => {
     setup();
     const epic = await screen.findByLabelText('Epic');

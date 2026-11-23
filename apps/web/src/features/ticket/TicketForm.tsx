@@ -1,5 +1,5 @@
 import { STATE_LABELS, TICKET_STATES, TICKET_TYPES, TYPE_LABELS, TicketCreateBody, toggleChecklistItem } from '@ticketing/shared';
-import { useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from 'react';
+import { useEffect, useId, useMemo, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { ApiError, errorMessage } from '../../api/client';
 import { useEpics, useTeams, type TicketInput } from '../../api/queries';
 import { Button } from '../../components/ui/Button';
@@ -79,6 +79,7 @@ export function TicketForm({ mode, initial, ticketId, onSubmit, onCancel, onQuic
     setErrors((e) => ({ ...e, teamId: undefined, epicId: undefined }));
   };
 
+  const formId = useId();
   const submit = async (e?: FormEvent) => {
     e?.preventDefault();
     const parsed = TicketCreateBody.safeParse(values);
@@ -123,9 +124,7 @@ export function TicketForm({ mode, initial, ticketId, onSubmit, onCancel, onQuic
   };
 
   return (
-    <form
-      onSubmit={submit}
-      noValidate
+    <div
       onKeyDown={(e) => {
         if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
           e.preventDefault();
@@ -139,6 +138,7 @@ export function TicketForm({ mode, initial, ticketId, onSubmit, onCancel, onQuic
           <Field label="Title" error={errors.title}>
             <Input
               ref={titleRef}
+              form={formId}
               value={values.title}
               onChange={(e) => set('title', e.target.value)}
               placeholder="Short summary of the work"
@@ -252,11 +252,13 @@ export function TicketForm({ mode, initial, ticketId, onSubmit, onCancel, onQuic
               Discard
             </Button>
           )}
-          <Button type="submit" variant="primary" loading={busy} disabled={mode === 'edit' && !dirty}>
+          <Button type="submit" form={formId} variant="primary" loading={busy} disabled={mode === 'edit' && !dirty}>
             {mode === 'create' ? 'Create ticket' : 'Save changes'}
           </Button>
         </div>
       </div>
-    </form>
+      {/* The ticket form is empty and linked by id: the comment composer renders inside this layout and must not be a nested form. */}
+      <form id={formId} onSubmit={submit} noValidate hidden />
+    </div>
   );
 }
