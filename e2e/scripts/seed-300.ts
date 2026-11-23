@@ -5,6 +5,7 @@
  * Credentials: SEED_EMAIL + SEED_PASSWORD for an existing verified account; otherwise a new account is
  * signed up and verified through Mailpit. Prints the board URL and the credentials it used.
  */
+import { randomBytes } from 'node:crypto';
 import { uniqueEmail, waitForVerificationLink } from '../tests/mailpit';
 
 const BASE_URL = process.env.BASE_URL ?? 'http://localhost:8080';
@@ -33,7 +34,7 @@ async function login(): Promise<{ email: string; password: string }> {
   let password = process.env.SEED_PASSWORD;
   if (!email || !password) {
     email = uniqueEmail('perf');
-    password = 'perf-password-1';
+    password = randomBytes(12).toString('base64url'); // throwaway account; printed below and written to SEED_OUT
     await call('POST', '/api/auth/signup', { email, password });
     const link = await waitForVerificationLink(email);
     await call('POST', '/api/auth/verify', { token: new URL(link, BASE_URL).searchParams.get('token') });
