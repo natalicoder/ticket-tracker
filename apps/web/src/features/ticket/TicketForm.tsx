@@ -14,7 +14,8 @@ export interface TicketFormProps {
   mode: 'create' | 'edit';
   initial: TicketInput;
   ticketId?: number;
-  onSubmit: (values: TicketInput) => Promise<void>;
+  /** `changed` holds only the fields this user edited (edit mode PATCHes just those, so a concurrent change to another field survives). */
+  onSubmit: (values: TicketInput, changed: Partial<TicketInput>) => Promise<void>;
   onCancel?: () => void;
   /** Saves a checklist toggle straight away when nothing else is being edited (edit mode). */
   onQuickSaveBody?: (body: string) => Promise<void>;
@@ -31,8 +32,23 @@ const SERVER_FIELD: Record<string, keyof TicketInput> = {
   EPIC_TEAM_MISMATCH: 'epicId',
 };
 
+const FIELDS = ['teamId', 'type', 'state', 'epicId', 'title', 'body'] as const satisfies readonly (keyof TicketInput)[];
+
 function same(a: TicketInput, b: TicketInput): boolean {
-  return a.teamId === b.teamId && a.type === b.type && a.state === b.state && a.epicId === b.epicId && a.title === b.title && a.body === b.body;
+  return FIELDS.every((k) => a[k] === b[k]);
+}
+
+function changedFields(values: TicketInput, base: TicketInput): Partial<TicketInput> {
+  const out: Partial<TicketInput> = {};
+  for (const k of FIELDS) if (values[k] !== base[k]) Object.assign(out, { [k]: values[k] });
+  return out;
+}
+
+/** Takes the server's value for every field the user has not edited, and keeps the user's edits. */
+function rebase(values: TicketInput, prevBase: TicketInput, next: TicketInput): TicketInput {
+  const out = { ...values };
+  for (const k of FIELDS) if (values[k] === prevBase[k]) Object.assign(out, { [k]: next[k] });
+  return out;
 }
 
 export function TicketForm({ mode, initial, ticketId, onSubmit, onCancel, onQuickSaveBody, autoFocus = 'title', meta, children }: TicketFormProps) {
@@ -47,14 +63,14 @@ export function TicketForm({ mode, initial, ticketId, onSubmit, onCancel, onQuic
   const bodyRef = useRef<HTMLTextAreaElement>(null);
   const titleRef = useRef<HTMLInputElement>(null);
 
-  // A refreshed ticket (after a save elsewhere) becomes the new baseline when nothing is being edited.
+  // A refreshed ticket (a save elsewhere, a drag on the board) becomes the new baseline; fields being edited keep the user's text.
   const initialKey = JSON.stringify(initial);
   const baseRef = useRef(base);
   baseRef.current = base;
   useEffect(() => {
     const prevBase = baseRef.current;
     setBase(initial);
-    setValues((v) => (same(v, prevBase) ? initial : v));
+    setValues((v) => rebase(v, prevBase, initial));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialKey]);
 
@@ -93,7 +109,7 @@ export function TicketForm({ mode, initial, ticketId, onSubmit, onCancel, onQuic
     setBusy(true);
     setErrors({});
     try {
-      await onSubmit(parsed.data);
+      await onSubmit(parsed.data, changedFields(parsed.data, base));
       setBase(parsed.data);
       setValues(parsed.data);
       setEpicCleared(false);

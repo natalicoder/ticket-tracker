@@ -1,6 +1,8 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
+import type { TicketInput } from '../../api/queries';
 import { mockFetch, renderWithProviders } from '../../test/utils';
 import { TicketForm } from './TicketForm';
 
@@ -80,7 +82,7 @@ describe('TicketForm', () => {
     await userEvent.type(screen.getByLabelText('Title'), '  Login fails ');
     await userEvent.type(screen.getByLabelText('Body'), 'Steps');
     await userEvent.click(screen.getByRole('button', { name: 'Create ticket' }));
-    await waitFor(() => expect(onSubmit).toHaveBeenCalledWith({ teamId: A, type: 'bug', state: 'new', epicId: EA, title: 'Login fails', body: 'Steps' }));
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledWith({ teamId: A, type: 'bug', state: 'new', epicId: EA, title: 'Login fails', body: 'Steps' }, expect.anything()));
   });
 
   it('keeps Save disabled in edit mode until something changes', async () => {
@@ -91,6 +93,35 @@ describe('TicketForm', () => {
     expect(save).toBeEnabled();
     await userEvent.type(screen.getByLabelText('Title'), '{Backspace}');
     expect(save).toBeDisabled();
+  });
+
+  it('keeps a change someone else saved meanwhile and sends only the fields this user edited', async () => {
+    mockFetch({
+      'GET /api/teams': { status: 200, body: teams },
+      'GET /api/epics': { status: 200, body: epics },
+    });
+    const onSubmit = vi.fn(async (_values: unknown, _changed: unknown) => {});
+    const start: TicketInput = { teamId: A, type: 'bug', state: 'new', epicId: EA, title: 'Old', body: 'B' };
+    function Harness() {
+      const [initial, setInitial] = useState(start);
+      return (
+        <>
+          <button type="button" onClick={() => setInitial({ ...start, state: 'done' })}>
+            Someone moves it
+          </button>
+          <TicketForm mode="edit" ticketId={7} initial={initial} onSubmit={onSubmit} />
+        </>
+      );
+    }
+    renderWithProviders(<Harness />);
+    await screen.findByLabelText('Epic');
+    await userEvent.type(screen.getByLabelText('Title'), ' title');
+    await userEvent.click(screen.getByRole('button', { name: 'Someone moves it' }));
+    expect(screen.getByLabelText('State')).toHaveValue('done');
+    expect(screen.getByLabelText('Title')).toHaveValue('Old title');
+    await userEvent.click(screen.getByRole('button', { name: 'Save changes' }));
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
+    expect(onSubmit.mock.calls[0]![1]).toEqual({ title: 'Old title' });
   });
 
   it('maps a server field error to its field', async () => {

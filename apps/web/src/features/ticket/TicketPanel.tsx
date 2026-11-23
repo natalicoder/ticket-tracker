@@ -255,8 +255,8 @@ function EditTicket({ mode, id }: { mode: 'page' | 'sheet'; id: number }) {
         ticketId={t.id}
         initial={{ teamId: t.teamId, type: t.type, state: t.state, epicId: t.epicId, title: t.title, body: t.body }}
         meta={<Meta ticket={t} />}
-        onSubmit={async (values) => {
-          await update.mutateAsync({ id: t.id, ...values });
+        onSubmit={async (_values, changed) => {
+          await update.mutateAsync({ id: t.id, ...changed });
           toast.success('Changes saved');
         }}
         onQuickSaveBody={async (body) => {
