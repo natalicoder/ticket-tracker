@@ -8,7 +8,7 @@
    docker compose up --build
    ```
    - App: http://localhost:8080
-   - Mailpit: http://localhost:8025
+   - Your mailbox (Outlook): verification emails arrive through relay1.dataart.com, so be in the office network or on VPN
    - API docs: http://localhost:8080/api/docs (log in to the app first)
 2. Prepare a populated board for part 4. This creates its own account; the script prints the login:
    ```sh
@@ -25,7 +25,7 @@
 
 1. Choose **Create an account**. Enter an email with capitals and surrounding spaces, plus an 8-character password.
 2. The check-your-email screen appears. Try **Log in** right away: it is refused with "Verify your email first".
-3. Switch to Mailpit, open the message and click the link. The page says **Email verified** → **Go to login**.
+3. Switch to your mailbox, open "Verify your email for Ticketing" and click the link. The page says **Email verified** → **Go to login**.
 4. Log in. "The email was trimmed and lower-cased; tokens are single-use, expire after 24 hours, and a resend invalidates older ones."
 
 ## 0:55 – 1:35 · Team, epic, ticket (requirements 4–6)
@@ -62,6 +62,6 @@
 
 ## If something goes wrong
 
-- **No email arrives:** check that Mailpit is open at http://localhost:8025. On the check-your-email screen, use **Resend**.
+- **No email arrives:** check the VPN connection and the junk folder, then run `docker compose logs api` and look for `failed to send email`. Use **Resend verification email** on the login page. Without the DataArt network, switch to the Mailpit mode from the README ("Email delivery").
 - **Port 8080 is busy:** start with `WEB_PORT=8081 docker compose up --build`.
 - **You need a clean slate:** run `docker compose down -v`.

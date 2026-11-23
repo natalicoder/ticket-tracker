@@ -20,14 +20,13 @@ docker compose up --build
 | What | Where |
 | --- | --- |
 | App | http://localhost:8080 |
-| Emails sent by the app (Mailpit) | http://localhost:8025 |
 | API reference (OpenAPI / Swagger UI, after logging in) | http://localhost:8080/api/docs |
 | Health / readiness | http://localhost:8080/api/health, http://localhost:8080/api/ready |
 
 First run:
 
 1. Open the app and choose **Create an account**.
-2. Open Mailpit and click the verification link.
+2. Open the verification email in your mailbox and click the link. The email is sent through the DataArt relay `relay1.dataart.com`, so this machine must be in the office network or on VPN (see [Email delivery](#email-delivery)).
 3. Log in. The onboarding card walks you through creating a team, an epic and your first ticket.
 
 The database starts empty: migrations run automatically when the API starts, and no seed data is loaded.
@@ -39,40 +38,38 @@ Every setting has a working default, so a `.env` file is optional. To change a s
 | Variable | Default | Purpose |
 | --- | --- | --- |
 | `WEB_PORT` | `8080` | Host port of the web app (nginx serves the SPA and proxies `/api`). |
-| `MAILPIT_PORT` | `8025` | Host port of the Mailpit inbox UI. |
 | `APP_BASE_URL` | `http://localhost:8080` | Public URL of the app, used to build links in emails. |
-| `SMTP_HOST` | `mailpit` | SMTP server. |
-| `SMTP_PORT` | `1025` | SMTP port. |
+| `SMTP_HOST` | `relay1.dataart.com` | SMTP server. |
+| `SMTP_PORT` | `25` | SMTP port. |
 | `SMTP_SECURE` | `false` | `true` for implicit TLS (port 465). STARTTLS is negotiated automatically when offered. |
 | `SMTP_IGNORE_TLS` | `false` | `true` never upgrades to TLS, even when the server offers STARTTLS. |
-| `SMTP_TLS_REJECT_UNAUTHORIZED` | `true` | `false` accepts a server certificate that is self-signed or issued for another name, as internal relays often have. |
-| `SMTP_USER` / `SMTP_PASS` | empty | SMTP credentials. Leave empty for relays that need no authentication. |
+| `SMTP_TLS_REJECT_UNAUTHORIZED` | `true` | `false` accepts a server certificate that is self-signed or issued for another name. |
+| `SMTP_USER` / `SMTP_PASS` | empty | SMTP credentials. Leave empty for relays that need no authentication (relay1 does not). |
 | `MAIL_FROM` | `Ticketing <no-reply@ticketing.local>` | Sender address. |
 | `COOKIE_SECURE` | `false` | Set to `true` when the app is served over HTTPS. |
-| `SHOW_MAILPIT_LINK` | `true` | Build-time flag: shows an "Open Mailpit" shortcut on the check-your-email screen. Set to `false` with a real SMTP server. |
+| `COMPOSE_PROFILES` | empty | `mailpit` also starts the local Mailpit inbox (see below). |
+| `MAILPIT_PORT` | `8025` | Host port of the Mailpit inbox UI, when it runs. |
+| `SHOW_MAILPIT_LINK` | `false` | Build-time flag: shows an "Open Mailpit" shortcut on the check-your-email screen. |
 
 The database password is not configurable and is never in the repository. On first start, the `secrets-init` container generates a random 32-character password into a Docker volume, and both Postgres and the API read it from there (`POSTGRES_PASSWORD_FILE`, `DB_PASSWORD_FILE`). The database port is not published to the host.
 
-### Using relay1.dataart.com
+### Email delivery
 
-Put this in `.env` and restart with `docker compose up --build`:
+By default the API sends mail through the DataArt relay: `relay1.dataart.com`, port 25, STARTTLS, no authentication. The relay is reachable only from the office network or VPN.
+
+- To deliver to people on other machines, set `APP_BASE_URL=http://<host-name-or-ip-of-this-machine>:8080`. The link in the email points there, so the recipient's browser must be able to open it.
+- If no email arrives, run `docker compose logs api` and look for `failed to send email`. That line includes the SMTP error. Signup still succeeds, and the user can ask for a new link from the login screen once the mail settings are fixed.
+
+**Working outside the DataArt network:** put this in `.env` to catch all mail in a local [Mailpit](https://mailpit.axllent.org/) inbox at http://localhost:8025 instead:
 
 ```dotenv
-SMTP_HOST=relay1.dataart.com
-SMTP_PORT=25
-SMTP_SECURE=false
-# If sending fails with a certificate error, the relay uses an internal certificate:
-# SMTP_TLS_REJECT_UNAUTHORIZED=false
-SMTP_USER=
-SMTP_PASS=
-MAIL_FROM=Ticketing <no-reply@your-domain.example>
-APP_BASE_URL=http://<host-name-or-ip-of-this-machine>:8080
-SHOW_MAILPIT_LINK=false
+COMPOSE_PROFILES=mailpit
+SMTP_HOST=mailpit
+SMTP_PORT=1025
+SHOW_MAILPIT_LINK=true
 ```
 
-`APP_BASE_URL` must be an address that the recipient's browser can reach, because the verification link in the email points there. The relay accepts mail only from inside the DataArt network.
-
-If no email arrives, run `docker compose logs api` and look for `failed to send email`. That line includes the SMTP error. Signup still succeeds, and the user can ask for a new link from the login screen once the mail settings are fixed.
+The end-to-end tests use this mode on their own (`docker-compose.e2e.yml`), so they run anywhere.
 
 ## Architecture
 
@@ -81,7 +78,7 @@ flowchart LR
   B[Browser<br/>React SPA] -->|HTTPS/HTTP :8080| W[web<br/>nginx: static SPA + /api proxy]
   W -->|/api/*| A[api<br/>Node 22 · Fastify · Drizzle]
   A -->|SQL| D[(db<br/>PostgreSQL 16)]
-  A -->|SMTP| M[Mailpit or relay1.dataart.com]
+  A -->|SMTP :25 STARTTLS| M[relay1.dataart.com<br/>or Mailpit offline]
   S[secrets-init] -. generates DB password .-> D
   S -. volume .-> A
 ```
@@ -143,7 +140,7 @@ Every row points to the code that implements the requirement and to the test tha
 | Sign up with email and password; email trimmed, case-insensitive, unique | `packages/shared/src/schemas.ts` (`emailSchema`), unique index on `lower(email)` | API `auth.test.ts` "runs the full flow with email normalisation", "rejects a duplicate email in any casing"; `db.test.ts` "treats emails case-insensitively as unique"; e2e `mvp.spec.ts` signs up with `"  EMAIL "` |
 | Log in and log out with local credentials | `apps/api/src/auth/routes.ts`, header account menu → Log out | e2e `mvp.spec.ts` steps "log in" and "log out" |
 | Password ≥ 8 chars, never plain text, Argon2id | `passwordSchema`, `apps/api/src/auth/passwords.ts` (@node-rs/argon2) | API `auth.test.ts` "rejects a short password with a field error", "stores an argon2id hash and never returns it" |
-| Verification email through configurable SMTP; supports relay1.dataart.com | `apps/api/src/mail/mailer.ts` (nodemailer), `SMTP_*` env | e2e `mvp.spec.ts` "verify through the link from Mailpit"; README section "Using relay1.dataart.com" |
+| Verification email through configurable SMTP; supports relay1.dataart.com | `apps/api/src/mail/mailer.ts` (nodemailer), `SMTP_*` env | e2e `mvp.spec.ts` "verify through the link from Mailpit" (e2e routes mail to Mailpit); default `SMTP_HOST=relay1.dataart.com` in `docker-compose.yml`, checked live: STARTTLS with a valid certificate, sender and recipient accepted; README section "Email delivery" |
 | Unverified account cannot use the app | `apps/api/src/auth/service.ts` login check | API `auth.test.ts` "signup → verify → login"; e2e "login is blocked until the email is verified" |
 | Token expires after 24 h, single-use; success leads to login | `apps/api/src/auth/tokens.ts`, `VerifyPage.tsx` | API "issues tokens that expire 24 hours after issue", "rejects an expired token"; web `VerifyPage.test.tsx` "explains a used link", "verifies once, even under StrictMode, and links to login" |
 | Resend from login or verification-result screen; new token invalidates old | `ResendForm.tsx` on Login (always available), Check-email and Verify pages; `auth/service.ts` | API "resend invalidates the previous token"; web "explains an expired link and offers to resend", `LoginPage.test.tsx` "offers to resend the verification email before any login attempt" |
@@ -309,4 +306,4 @@ Extras:
 docker compose down -v
 ```
 
-This removes the database, the generated secret and Mailpit's mail. The next `docker compose up --build` starts with an empty database.
+This removes the database and the generated secret (and Mailpit's mail, if you use it). The next `docker compose up --build` starts with an empty database.

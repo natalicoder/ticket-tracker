@@ -1,5 +1,17 @@
 # End-to-end run: docker compose -f docker-compose.yml -f docker-compose.e2e.yml up -d --build --wait web && docker compose -f docker-compose.yml -f docker-compose.e2e.yml run --rm --build e2e
+# The tests read verification emails from Mailpit, so this override turns Mailpit on and routes the API's mail to it.
 services:
+  mailpit:
+    profiles: !reset []
+
+  api:
+    environment:
+      SMTP_HOST: mailpit
+      SMTP_PORT: 1025
+    depends_on:
+      mailpit:
+        condition: service_started
+
   e2e:
     build:
       context: .

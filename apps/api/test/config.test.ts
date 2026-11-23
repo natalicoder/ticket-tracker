@@ -14,10 +14,10 @@ describe('loadConfig', () => {
     expect(cfg.databaseUrl).toBe('postgres://ticketing:s3cr%2Ft@db:5432/ticketing');
   });
 
-  it('prefers DATABASE_URL and applies SMTP defaults', () => {
+  it('prefers DATABASE_URL and defaults to the DataArt SMTP relay', () => {
     const cfg = loadConfig({ DATABASE_URL: 'postgres://a:b@h:1/d' });
     expect(cfg.databaseUrl).toBe('postgres://a:b@h:1/d');
-    expect(cfg.smtp).toEqual({ host: 'mailpit', port: 1025, secure: false, ignoreTls: false, tlsRejectUnauthorized: true, user: undefined, pass: undefined, from: 'Ticketing <no-reply@ticketing.local>' });
+    expect(cfg.smtp).toEqual({ host: 'relay1.dataart.com', port: 25, secure: false, ignoreTls: false, tlsRejectUnauthorized: true, user: undefined, pass: undefined, from: 'Ticketing <no-reply@ticketing.local>' });
     expect(cfg.port).toBe(3000);
     expect(cfg.cookieSecure).toBe(false);
     expect(cfg.rateLimit).toBe(true);

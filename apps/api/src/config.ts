@@ -60,8 +60,8 @@ export function loadConfig(env: Env = process.env): Config {
     appBaseUrl: (env.APP_BASE_URL ?? 'http://localhost:8080').replace(/\/+$/, ''),
     cookieSecure: bool(env.COOKIE_SECURE, false),
     smtp: {
-      host: env.SMTP_HOST || 'mailpit',
-      port: int(env.SMTP_PORT, 1025),
+      host: env.SMTP_HOST || 'relay1.dataart.com',
+      port: int(env.SMTP_PORT, 25),
       secure: bool(env.SMTP_SECURE, false),
       ignoreTls: bool(env.SMTP_IGNORE_TLS, false),
       tlsRejectUnauthorized: bool(env.SMTP_TLS_REJECT_UNAUTHORIZED, true),

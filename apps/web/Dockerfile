@@ -8,7 +8,7 @@ COPY apps/web/package.json apps/web/
 RUN npm ci --no-audit --no-fund
 
 FROM deps AS build
-ARG VITE_SHOW_MAILPIT_LINK=true
+ARG VITE_SHOW_MAILPIT_LINK=false
 ARG VITE_MAILPIT_PORT=8025
 ENV VITE_SHOW_MAILPIT_LINK=$VITE_SHOW_MAILPIT_LINK VITE_MAILPIT_PORT=$VITE_MAILPIT_PORT
 COPY tsconfig.base.json ./
