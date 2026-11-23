@@ -21,7 +21,7 @@ docker compose up --build
 | --- | --- |
 | App | http://localhost:8080 |
 | Emails sent by the app (Mailpit) | http://localhost:8025 |
-| API reference (OpenAPI / Swagger UI) | http://localhost:8080/api/docs |
+| API reference (OpenAPI / Swagger UI, after logging in) | http://localhost:8080/api/docs |
 | Health / readiness | http://localhost:8080/api/health, http://localhost:8080/api/ready |
 
 First run:
@@ -105,9 +105,9 @@ Current results:
 
 | Suite | Result |
 | --- | --- |
-| Shared, API and web unit and integration tests | 30 + 144 + 51 tests pass |
+| Shared, API and web unit and integration tests | 30 + 146 + 53 tests pass |
 | Playwright end-to-end, including axe checks in both themes | 12 tests pass |
-| Board with 300 tickets | First card in 0.4 s; filter responds in under 0.1 s; no main-thread task longer than 50 ms during a drag; about 70 of the 300 cards are in the DOM at once because long columns are virtualized |
+| Board with 300 tickets | First card in 0.4 s; filter responds in under 0.1 s; main-thread tasks stay under 60 ms during a drag; about 70 of the 300 cards are in the DOM at once because long columns are virtualized |
 
 The seed script is a developer tool. It never runs at startup and only creates data through the public API.
 
@@ -140,8 +140,8 @@ Every row points to the code that implements the requirement and to the test tha
 | Verification email through configurable SMTP; supports relay1.dataart.com | `apps/api/src/mail/mailer.ts` (nodemailer), `SMTP_*` env | e2e `mvp.spec.ts` "verify through the link from Mailpit"; README section "Using relay1.dataart.com" |
 | Unverified account cannot use the app | `apps/api/src/auth/service.ts` login check | API `auth.test.ts` "signup → verify → login"; e2e "login is blocked until the email is verified" |
 | Token expires after 24 h, single-use; success leads to login | `apps/api/src/auth/tokens.ts`, `VerifyPage.tsx` | API "issues tokens that expire 24 hours after issue", "rejects an expired token"; web `VerifyPage.test.tsx` "explains a used link", "verifies once, even under StrictMode, and links to login" |
-| Resend from login or verification-result screen; new token invalidates old | `ResendForm.tsx` on Login, Check-email and Verify pages; `auth/service.ts` | API "resend invalidates the previous token"; web "explains an expired link and offers to resend" |
-| Everything requires auth except signup, login, verify, resend (+ static and health) | `apps/api/src/auth/guard.ts` (deny by default), `RequireAuth.tsx` | API `guard.test.ts`: every private route returns 401 without a session and with a forged cookie, and the public list stays reachable; web `RequireAuth.test.tsx` |
+| Resend from login or verification-result screen; new token invalidates old | `ResendForm.tsx` on Login (always available), Check-email and Verify pages; `auth/service.ts` | API "resend invalidates the previous token"; web "explains an expired link and offers to resend", `LoginPage.test.tsx` "offers to resend the verification email before any login attempt" |
+| Everything requires auth except signup, login, verify, resend (+ static and health) | `apps/api/src/auth/guard.ts` (deny by default), `RequireAuth.tsx` | API `guard.test.ts`: every private route (including `/api/docs`) returns 401 without a session and with a forged cookie, and the public list stays reachable; web `RequireAuth.test.tsx` |
 
 ### 4. Teams
 
@@ -245,7 +245,7 @@ Every row points to the code that implements the requirement and to the test tha
 | Loading, empty, success and error states | Skeletons, empty states, toasts, inline errors | web "invites the user to create the first team when there are none", "shows the server message when a rename conflicts" |
 | Current Chrome, Edge, Firefox | Standard React and CSS, no browser-specific APIs | e2e in Chromium |
 | README with prerequisites, configuration, startup | This file | — |
-| Tests: one backend business flow, one frontend or API flow | 225 unit and integration tests + 12 e2e tests | See "Running tests" |
+| Tests: one backend business flow, one frontend or API flow | 229 unit and integration tests + 12 e2e tests | See "Running tests" |
 
 ### 13. Definition of done
 
