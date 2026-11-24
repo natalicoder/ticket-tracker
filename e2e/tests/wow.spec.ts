@@ -31,6 +31,22 @@ test('undo after a drag puts the ticket back', async ({ page }) => {
   await expect.poll(async () => (await a.getTicket(t.id)).state).toBe('new');
 });
 
+test('with the backend unreachable, a dragged card snaps back and an error is shown', async ({ page }) => {
+  const a = arrange(page);
+  const team = await a.team(unique('Outage'));
+  const t = await a.ticket(team.id, 'Offline move');
+  await page.goto(`/board/${team.id}`);
+  await expect(cardIn(page, 'new', 'Offline move')).toBeVisible();
+  // Simulates a stopped API: every state change fails at the network level.
+  await page.route('**/api/tickets/*/state', (route) => route.abort('connectionrefused'));
+  await dragTo(page, cardIn(page, 'new', 'Offline move'), column(page, 'done'));
+  await expect(page.getByText(new RegExp(`Could not move #${t.id}`))).toBeVisible();
+  await expect(cardIn(page, 'new', 'Offline move')).toBeVisible();
+  await expect(cardIn(page, 'done', 'Offline move')).toHaveCount(0);
+  await page.unroute('**/api/tickets/*/state');
+  expect((await a.getTicket(t.id)).state).toBe('new');
+});
+
 test('creating a similar ticket shows a duplicate hint', async ({ page }) => {
   const a = arrange(page);
   const team = await a.team(unique('Dupes'));
