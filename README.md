@@ -108,8 +108,8 @@ Current results:
 
 | Suite | Result |
 | --- | --- |
-| Shared, API and web unit and integration tests | 30 + 148 + 55 tests pass |
-| Playwright end-to-end, including axe checks in both themes | 12 tests pass |
+| Shared, API and web unit and integration tests | 30 + 148 + 56 tests pass |
+| Playwright end-to-end, including axe checks in both themes | 13 tests pass |
 | Board with 300 tickets | First card in 0.4 s; filter responds in under 0.1 s; main-thread tasks stay under 60 ms during a drag; about 70 of the 300 cards are in the DOM at once because long columns are virtualized |
 
 The seed script is a developer tool. It never runs at startup and only creates data through the public API.
@@ -205,7 +205,7 @@ Every row points to the code that implements the requirement and to the test tha
 | Exactly five columns in workflow order | `TICKET_STATES` drives the columns | e2e `helpers.ts` `column(page, state)` for all five; shared "has the exact types and states in workflow order" |
 | Card shows title, type and epic | `TicketCard.tsx` | e2e "create a ticket with the epic" checks the epic on the card |
 | Drag between columns persists through the API | dnd-kit + `useMoveTicket.ts` | e2e "drag it to In progress; it stays there after reload" |
-| Failed drag returns the card and shows an error | Optimistic update with rollback | web `useMoveTicket.test.tsx` "puts the card back and shows the error when the server fails", "restores the card even if the board was refetched in between" |
+| Failed drag returns the card and shows an error | Optimistic update with rollback | e2e `wow.spec.ts` "with the backend unreachable, a dragged card snaps back and an error is shown"; web `useMoveTicket.test.tsx` "puts the card back and shows the error when the server fails", "restores the card even if the board was refetched in between" |
 | Any state to any state | No transition rules | e2e `wow.spec.ts` "undo after a drag puts the ticket back" (New → Done → New) |
 | Most recently modified first | `ORDER BY modified_at DESC` + optimistic insert at the top | API "orders the board by most recently modified"; web "moves the card optimistically to the top and PATCHes the new state" |
 | Clear way to create and open tickets | New ticket button (`c`), per-column + and Add ticket, click or Enter on a card | e2e "create a ticket with the epic", "open it and add a comment" |
@@ -248,7 +248,7 @@ Every row points to the code that implements the requirement and to the test tha
 | Loading, empty, success and error states | Skeletons, empty states, toasts, inline errors | web "invites the user to create the first team when there are none", "shows the server message when a rename conflicts" |
 | Current Chrome, Edge, Firefox | Standard React and CSS, no browser-specific APIs | e2e in Chromium |
 | README with prerequisites, configuration, startup | This file | — |
-| Tests: one backend business flow, one frontend or API flow | 233 unit and integration tests + 12 e2e tests | See "Running tests" |
+| Tests: one backend business flow, one frontend or API flow | 234 unit and integration tests + 13 e2e tests | See "Running tests" |
 
 ### 13. Definition of done
 
