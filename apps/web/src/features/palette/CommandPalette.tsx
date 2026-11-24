@@ -16,7 +16,7 @@ function Item({ onSelect, icon, children, shortcut, value, forceMount }: { onSel
       value={value}
       onSelect={onSelect}
       forceMount={forceMount}
-      className="flex cursor-default items-center gap-2.5 rounded-md px-2.5 py-2 text-sm text-ink aria-selected:bg-accent-soft aria-selected:text-ink"
+      className="flex cursor-default items-center gap-2.5 rounded-full px-3.5 py-2 text-sm text-ink aria-selected:bg-accent-soft aria-selected:text-ink"
     >
       <span className="text-muted">{icon}</span>
       <span className="min-w-0 flex-1 truncate">{children}</span>

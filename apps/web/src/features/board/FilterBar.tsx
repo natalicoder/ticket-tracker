@@ -48,7 +48,7 @@ export function FilterBar({ filters, onChange, epics, shown, total }: FilterBarP
             }
           }}
           placeholder="Search titles"
-          className="h-8 w-full rounded-md border border-line bg-surface pl-8 pr-8 text-sm placeholder:text-muted/80 hover:border-line-strong focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25"
+          className="h-9 w-full rounded-full border border-line bg-surface pl-9 pr-9 text-sm placeholder:text-muted/80 hover:border-line-strong focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25"
         />
         {!filters.q && <Kbd className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2">/</Kbd>}
       </div>
@@ -56,7 +56,7 @@ export function FilterBar({ filters, onChange, epics, shown, total }: FilterBarP
         <label htmlFor="filter-type" className="sr-only">
           Type
         </label>
-        <Select id="filter-type" className="h-8" value={filters.type ?? ''} onChange={(e) => onChange({ ...filters, type: (e.target.value || undefined) as BoardFilters['type'] })}>
+        <Select id="filter-type" className="h-9 rounded-full" value={filters.type ?? ''} onChange={(e) => onChange({ ...filters, type: (e.target.value || undefined) as BoardFilters['type'] })}>
           <option value="">All types</option>
           {TICKET_TYPES.map((t) => (
             <option key={t} value={t}>
@@ -69,7 +69,7 @@ export function FilterBar({ filters, onChange, epics, shown, total }: FilterBarP
         <label htmlFor="filter-epic" className="sr-only">
           Epic
         </label>
-        <Select id="filter-epic" className="h-8" value={filters.epic ?? ''} onChange={(e) => onChange({ ...filters, epic: e.target.value || undefined })}>
+        <Select id="filter-epic" className="h-9 rounded-full" value={filters.epic ?? ''} onChange={(e) => onChange({ ...filters, epic: e.target.value || undefined })}>
           <option value="">All epics</option>
           <option value="none">No epic</option>
           {epics.map((e) => (
@@ -81,7 +81,7 @@ export function FilterBar({ filters, onChange, epics, shown, total }: FilterBarP
       </div>
       {active && (
         <>
-          <button type="button" onClick={() => onChange({})} className="inline-flex h-8 items-center gap-1 rounded-md px-2 text-sm font-medium text-ink-2 hover:bg-ink/5">
+          <button type="button" onClick={() => onChange({})} className="inline-flex h-9 items-center gap-1 rounded-full px-3 text-sm font-medium text-ink-2 hover:bg-ink/5">
             <X className="h-3.5 w-3.5" aria-hidden /> Clear filters
           </button>
           <span className="text-xs text-muted" role="status">

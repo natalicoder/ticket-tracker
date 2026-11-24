@@ -39,7 +39,7 @@ export function ResetPasswordPage() {
   if (!token || tokenError) {
     return (
       <AuthLayout title="This reset link does not work" subtitle={tokenError ?? 'The link is incomplete. Request a new one.'}>
-        <Link to="/forgot-password" className="inline-flex h-9 w-full items-center justify-center rounded-md bg-accent text-sm font-medium text-accent-ink hover:bg-accent/90">
+        <Link to="/forgot-password" className="inline-flex h-9 w-full items-center justify-center rounded-full bg-brand text-sm font-semibold text-brand-ink hover:bg-brand/85">
           Request a new link
         </Link>
       </AuthLayout>

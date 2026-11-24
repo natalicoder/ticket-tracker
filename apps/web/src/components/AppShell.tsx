@@ -39,7 +39,7 @@ export function TeamSelector() {
         id="team-selector"
         value={current ?? ''}
         onChange={(e) => navigate(`/board/${e.target.value}`)}
-        className="h-8 max-w-[11rem] appearance-none truncate rounded-md border border-transparent bg-transparent pl-2 pr-7 text-sm font-semibold text-ink hover:border-line hover:bg-surface focus:border-accent focus:outline-none sm:max-w-[16rem]"
+        className="h-8 max-w-[11rem] appearance-none truncate rounded-full border border-transparent bg-transparent pl-2 pr-7 text-sm font-semibold text-ink hover:border-line hover:bg-surface focus:border-accent focus:outline-none sm:max-w-[16rem]"
       >
         {list.map((t) => (
           <option key={t.id} value={t.id}>
@@ -57,7 +57,7 @@ function NavItem({ to, children }: { to: string; children: string }) {
     <NavLink
       to={to}
       className={({ isActive }) =>
-        cn('rounded-md px-2.5 py-1.5 text-sm font-medium transition-colors', isActive ? 'bg-ink/[0.07] text-ink' : 'text-muted hover:text-ink')
+        cn('rounded-full px-3.5 py-1.5 text-sm font-semibold transition-colors', isActive ? 'bg-ink text-bg' : 'text-muted hover:bg-ink/5 hover:text-ink')
       }
     >
       {children}
@@ -110,11 +110,11 @@ export function UserMenu() {
   return (
     <DM.Root>
       <DM.Trigger className="flex h-8 items-center gap-1.5 rounded-md pl-1 pr-1.5 hover:bg-ink/5" aria-label={`Account menu for ${email}`}>
-        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-accent-soft text-2xs font-semibold text-accent">{initials}</span>
+        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-brand text-2xs font-bold text-brand-ink">{initials}</span>
         <ChevronDown aria-hidden className="h-3.5 w-3.5 text-muted" />
       </DM.Trigger>
       <DM.Portal>
-        <DM.Content align="end" sideOffset={6} className="z-50 min-w-[14rem] rounded-md bg-surface p-1 shadow-pop animate-pop-in">
+        <DM.Content align="end" sideOffset={6} className="z-50 min-w-[14rem] rounded-lg bg-surface p-1.5 shadow-pop animate-pop-in">
           <div className="px-2 pb-2 pt-1.5">
             <div className="text-xs text-muted">Signed in as</div>
             <div className="truncate text-sm font-medium">{email}</div>

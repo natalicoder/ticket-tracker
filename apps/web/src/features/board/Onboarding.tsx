@@ -91,7 +91,7 @@ export function Onboarding({ teamId }: { teamId?: string }) {
               <Link
                 to={`/tickets/new?teamId=${teamId}`}
                 state={{ background: location }}
-                className="inline-flex h-9 items-center rounded-md bg-accent px-3.5 text-sm font-medium text-accent-ink shadow-card hover:bg-accent/90"
+                className="inline-flex h-10 items-center rounded-full bg-brand px-5 text-sm font-semibold text-brand-ink hover:bg-brand/85"
               >
                 New ticket
               </Link>

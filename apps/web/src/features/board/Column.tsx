@@ -4,7 +4,7 @@ import { useVirtualizer } from '@tanstack/react-virtual';
 import { Plus } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { memo, useRef, type ReactNode } from 'react';
-import { STATE_COLOR } from '../../components/ui/Badge';
+import { STATE_COLOR, STATE_TINT } from '../../components/ui/Badge';
 import { cn } from '../../lib/cn';
 import { TicketCard } from './TicketCard';
 
@@ -75,7 +75,7 @@ function CardList({ cards, epicTitles, onOpen, focusedId, onFocusCard }: Pick<Co
 
   if (!virtual) {
     return (
-      <div ref={scrollRef} className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto px-2 pb-2">
+      <div ref={scrollRef} className="flex min-h-0 flex-1 flex-col gap-2.5 overflow-y-auto px-2.5 pb-2.5">
         {cards.map((c) => (
           <motion.div key={c.id} layout="position" transition={{ type: "spring", stiffness: 520, damping: 40, mass: 0.6 }}>
             <DraggableCard card={c} epicTitle={c.epicId ? epicTitles.get(c.epicId) : undefined} onOpen={onOpen} focused={focusedId === c.id} onFocusCard={onFocusCard} />
@@ -86,7 +86,7 @@ function CardList({ cards, epicTitles, onOpen, focusedId, onFocusCard }: Pick<Co
   }
 
   return (
-    <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto px-2 pb-2" data-virtualized>
+    <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto px-2.5 pb-2.5" data-virtualized>
       <div style={{ height: virtualizer.getTotalSize(), position: 'relative' }}>
         {virtualizer.getVirtualItems().map((item) => {
           const c = cards[item.index]!;
@@ -111,35 +111,36 @@ export const Column = memo(function Column({ state, cards, epicTitles, onOpen, o
       aria-labelledby={headingId}
       data-state={state}
       className={cn(
-        'flex h-full min-w-[232px] max-w-[380px] flex-1 basis-0 snap-start flex-col rounded-lg border bg-sunken/70 transition-colors',
-        isOver && !fromHere ? 'border-accent bg-accent-soft/60' : 'border-transparent',
+        'flex h-full min-w-[232px] max-w-[380px] flex-1 basis-0 snap-start flex-col rounded-xl border-2 transition-colors',
+        STATE_TINT[state],
+        isOver && !fromHere ? 'border-ink/40' : 'border-transparent',
       )}
     >
-      <header className="flex items-center gap-2 px-3 pb-2 pt-2.5">
+      <header className="flex items-center gap-2 px-4 pb-2.5 pt-3.5">
         <span aria-hidden className={cn('h-2.5 w-2.5 rounded-full', STATE_COLOR[state])} />
-        <h2 id={headingId} className="text-[13px] font-semibold text-ink">
+        <h2 id={headingId} className="text-sm font-bold text-ink">
           {STATE_LABELS[state]}
         </h2>
-        <span className="text-xs tabular-nums text-muted" aria-label={`${cards.length} tickets`}>
+        <span className="rounded-full bg-surface/70 px-2 py-0.5 text-xs font-semibold tabular-nums text-ink-2" aria-label={`${cards.length} tickets`}>
           {cards.length}
         </span>
         <button
           type="button"
           onClick={() => onNew(state)}
-          className="ml-auto flex h-6 w-6 items-center justify-center rounded-md text-muted hover:bg-ink/5 hover:text-ink"
+          className="ml-auto flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-surface/70 text-ink-2 hover:bg-surface hover:text-ink"
           aria-label={`New ticket in ${STATE_LABELS[state]}`}
         >
           <Plus className="h-3.5 w-3.5" />
         </button>
       </header>
       {cards.length === 0 ? (
-        <div className={cn('mx-2 mb-2 flex flex-1 items-start justify-center rounded-md border border-dashed px-3 py-6 text-center text-xs text-muted', isOver ? 'border-accent' : 'border-line-strong/70')}>
+        <div className={cn('mx-2.5 mb-2.5 flex flex-1 items-start justify-center rounded-lg border-2 border-dashed px-3 py-6 text-center text-xs font-medium text-ink-2', isOver ? 'border-ink/40' : 'border-ink/15')}>
           {filtered ? 'No matching tickets' : 'Drop tickets here'}
         </div>
       ) : (
         <CardList cards={cards} epicTitles={epicTitles} onOpen={onOpen} focusedId={focusedId} onFocusCard={onFocusCard} />
       )}
-      {footer && <div className="px-2 pb-2">{footer}</div>}
+      {footer && <div className="px-2.5 pb-2.5">{footer}</div>}
     </section>
   );
 });

@@ -26,8 +26,8 @@ export const TicketCard = memo(
         data-ticket-id={card.id}
         aria-label={`#${card.id} ${card.title}`}
         className={cn(
-          'group relative cursor-pointer select-none rounded-md border bg-surface p-2.5 text-left shadow-card outline-none transition-[box-shadow,border-color,opacity]',
-          'border-line hover:border-line-strong focus-visible:border-accent focus-visible:ring-2 focus-visible:ring-accent/30',
+          'group relative cursor-pointer select-none rounded-lg border bg-surface p-3.5 text-left shadow-card outline-none transition-[box-shadow,border-color,opacity]',
+          'border-transparent hover:border-line-strong focus-visible:border-accent focus-visible:ring-2 focus-visible:ring-accent/30',
           focused && 'border-accent ring-2 ring-accent/30',
           dragging && 'opacity-40',
           overlay && 'cursor-grabbing border-line-strong shadow-lift',
@@ -44,7 +44,7 @@ export const TicketCard = memo(
           <div className="mt-2 flex items-center gap-1.5" title={`${done} of ${total} checklist items done`}>
             <CheckSquare className="h-3 w-3 text-muted" aria-hidden />
             <div className="h-1 flex-1 overflow-hidden rounded-full bg-sunken" aria-hidden>
-              <div className={cn('h-full rounded-full', done === total ? 'bg-st-done' : 'bg-accent')} style={{ width: `${(done / total) * 100}%` }} />
+              <div className={cn('h-full rounded-full', done === total ? 'bg-st-done' : 'bg-brand')} style={{ width: `${(done / total) * 100}%` }} />
             </div>
             <span className="text-2xs tabular-nums text-muted">
               {done}/{total}
@@ -59,7 +59,7 @@ export const TicketCard = memo(
             </Chip>
           )}
           <span
-            className={cn('inline-flex shrink-0 items-center gap-1 rounded-sm px-1 py-0.5', stale && 'bg-warn-soft font-medium text-warn')}
+            className={cn('inline-flex shrink-0 items-center gap-1 rounded-full px-1.5 py-0.5', stale && 'bg-warn-soft font-medium text-warn')}
             title={`In ${STATE_LABELS[card.state]} since ${absoluteTime(card.stateSince)}`}
           >
             <Clock3 className="h-3 w-3" aria-hidden />

@@ -52,7 +52,7 @@ export function VerifyPage() {
         <div className="mb-5 flex items-center gap-2 text-sm text-success">
           <CircleCheck className="h-5 w-5" aria-hidden /> Thanks for confirming your address.
         </div>
-        <Link to="/login" className="inline-flex h-9 w-full items-center justify-center rounded-md bg-accent text-sm font-medium text-accent-ink shadow-card hover:bg-accent/90">
+        <Link to="/login" className="inline-flex h-9 w-full items-center justify-center rounded-full bg-brand text-sm font-semibold text-brand-ink hover:bg-brand/85">
           Go to login
         </Link>
       </AuthLayout>

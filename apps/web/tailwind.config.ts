@@ -8,7 +8,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['"Schibsted Grotesk"', 'ui-sans-serif', 'system-ui', '-apple-system', 'Segoe UI', 'sans-serif'],
+        sans: ['"Plus Jakarta Sans"', 'ui-sans-serif', 'system-ui', '-apple-system', 'Segoe UI', 'sans-serif'],
       },
       fontSize: {
         '2xs': ['0.6875rem', { lineHeight: '1rem' }],
@@ -25,6 +25,8 @@ export default {
         accent: token('accent'),
         'accent-ink': token('accent-ink'),
         'accent-soft': token('accent-soft'),
+        brand: token('brand'),
+        'brand-ink': token('brand-ink'),
         danger: token('danger'),
         'danger-soft': token('danger-soft'),
         success: token('success'),
@@ -35,18 +37,24 @@ export default {
         'st-progress': token('st-progress'),
         'st-accept': token('st-accept'),
         'st-done': token('st-done'),
+        'col-new': token('col-new'),
+        'col-ready': token('col-ready'),
+        'col-progress': token('col-progress'),
+        'col-accept': token('col-accept'),
+        'col-done': token('col-done'),
         'ty-bug': token('ty-bug'),
         'ty-feature': token('ty-feature'),
         'ty-fix': token('ty-fix'),
       },
       borderRadius: {
-        sm: '4px',
-        DEFAULT: '6px',
-        md: '8px',
-        lg: '12px',
+        sm: '8px',
+        DEFAULT: '10px',
+        md: '14px',
+        lg: '22px',
+        xl: '28px',
       },
       boxShadow: {
-        card: '0 1px 0 rgb(var(--shadow) / 0.06), 0 1px 2px rgb(var(--shadow) / 0.06)',
+        card: '0 1px 2px rgb(var(--shadow) / 0.05)',
         lift: '0 12px 28px -8px rgb(var(--shadow) / 0.28), 0 4px 10px -4px rgb(var(--shadow) / 0.18)',
         pop: '0 16px 48px -12px rgb(var(--shadow) / 0.35), 0 0 0 1px rgb(var(--line) / 1)',
       },

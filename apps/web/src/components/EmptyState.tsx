@@ -17,7 +17,7 @@ export function ErrorCard({ message, onRetry }: { message: string; onRetry?: () 
     <div role="alert" className="mx-auto flex max-w-md flex-col items-center rounded-lg border border-danger/30 bg-danger-soft px-6 py-8 text-center">
       <p className="text-sm font-medium text-ink">{message}</p>
       {onRetry && (
-        <button type="button" onClick={onRetry} className="mt-3 rounded-md px-3 py-1.5 text-sm font-medium text-accent hover:bg-accent/10">
+        <button type="button" onClick={onRetry} className="mt-3 rounded-full px-4 py-1.5 text-sm font-semibold text-accent hover:bg-accent-soft">
           Try again
         </button>
       )}

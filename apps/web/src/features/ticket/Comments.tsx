@@ -15,7 +15,7 @@ import { MarkdownBody } from './MarkdownBody';
 
 export function Avatar({ email }: { email: string }) {
   return (
-    <span aria-hidden className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent-soft text-2xs font-semibold uppercase text-accent">
+    <span aria-hidden className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand text-2xs font-bold uppercase text-brand-ink">
       {email.slice(0, 2)}
     </span>
   );

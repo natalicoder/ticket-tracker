@@ -52,7 +52,7 @@ export function QuickAdd({ teamId, state, epics, defaultOpen = false }: { teamId
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="flex w-full items-center gap-1.5 rounded-md px-2 py-1.5 text-left text-xs font-medium text-muted hover:bg-ink/5 hover:text-ink"
+        className="flex w-full items-center gap-1.5 rounded-full px-3 py-2 text-left text-xs font-semibold text-ink-2 hover:bg-surface/70 hover:text-ink"
       >
         <Plus className="h-3.5 w-3.5" aria-hidden /> Add ticket
       </button>

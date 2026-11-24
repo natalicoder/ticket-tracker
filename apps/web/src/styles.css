@@ -1,87 +1,113 @@
-@import '@fontsource/schibsted-grotesk/400.css';
-@import '@fontsource/schibsted-grotesk/500.css';
-@import '@fontsource/schibsted-grotesk/600.css';
-@import '@fontsource/schibsted-grotesk/700.css';
+@import '@fontsource/plus-jakarta-sans/400.css';
+@import '@fontsource/plus-jakarta-sans/500.css';
+@import '@fontsource/plus-jakarta-sans/600.css';
+@import '@fontsource/plus-jakarta-sans/700.css';
+@import '@fontsource/plus-jakarta-sans/800.css';
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /*
-  Tokens. Light is an engineering-paper grey with graphite ink and one indigo for actions.
-  Workflow states run a hue ramp slate → blue → amber → violet → green, so a column's colour
-  tells you how far along the work is.
+  Tokens. Light is a warm stone grey with white, generously rounded cards, sunflower yellow for the
+  main action and soft pastel tiles per workflow state: lavender → peach → butter → mint → sage.
+  `brand` fills primary actions (dark ink on yellow); `accent` is the readable amber used for links,
+  focus rings and selection, because yellow text would not pass contrast.
 */
 :root {
   color-scheme: light;
-  --bg: 243 244 241;
+  --bg: 238 235 231;
   --surface: 255 255 255;
-  --sunken: 234 236 231;
-  --line: 218 221 215;
-  --line-strong: 190 195 187;
-  --ink: 26 30 35;
-  --ink-2: 62 68 76;
-  --muted: 98 105 114;
-  --accent: 61 78 216;
+  --sunken: 231 227 221;
+  --line: 226 221 214;
+  --line-strong: 201 194 185;
+  --ink: 33 29 26;
+  --ink-2: 72 65 59;
+  --muted: 99 91 83;
+  --accent: 133 80 0;
   --accent-ink: 255 255 255;
-  --accent-soft: 228 231 252;
-  --danger: 190 46 46;
-  --danger-soft: 252 231 229;
-  --success: 26 122 80;
-  --warn: 150 92 6;
-  --warn-soft: 253 241 214;
-  --shadow: 22 26 32;
+  --accent-soft: 253 239 199;
+  --brand: 251 191 36;
+  --brand-ink: 33 29 26;
+  --danger: 184 44 34;
+  --danger-soft: 251 226 220;
+  --success: 52 114 40;
+  --warn: 133 80 0;
+  --warn-soft: 253 239 199;
+  --shadow: 60 44 30;
 
-  --st-new: 116 126 143;
-  --st-ready: 41 104 201;
-  --st-progress: 196 128 12;
-  --st-accept: 128 78 205;
-  --st-done: 30 135 88;
+  --st-new: 120 100 226;
+  --st-ready: 222 104 82;
+  --st-progress: 232 160 0;
+  --st-accept: 44 150 126;
+  --st-done: 112 140 34;
 
-  --ty-bug: 190 46 46;
-  --ty-feature: 118 72 200;
-  --ty-fix: 150 92 6;
+  --col-new: 234 229 252;
+  --col-ready: 251 227 218;
+  --col-progress: 253 237 189;
+  --col-accept: 214 239 231;
+  --col-done: 228 235 202;
+
+  --ty-bug: 170 50 30;
+  --ty-feature: 92 66 200;
+  --ty-fix: 78 102 14;
 }
 
 [data-theme='dark'] {
   color-scheme: dark;
-  --bg: 17 19 22;
-  --surface: 27 30 35;
-  --sunken: 22 24 28;
-  --line: 44 49 56;
-  --line-strong: 64 71 80;
-  --ink: 232 235 239;
-  --ink-2: 196 202 210;
-  --muted: 150 158 169;
-  --accent: 132 143 250;
-  --accent-ink: 13 15 38;
-  --accent-soft: 37 41 78;
-  --danger: 248 118 112;
-  --danger-soft: 66 28 28;
-  --success: 92 205 150;
-  --warn: 240 183 84;
-  --warn-soft: 62 46 18;
+  --bg: 26 24 22;
+  --surface: 38 35 32;
+  --sunken: 31 29 27;
+  --line: 56 52 48;
+  --line-strong: 78 73 67;
+  --ink: 242 238 232;
+  --ink-2: 210 203 194;
+  --muted: 168 159 149;
+  --accent: 252 200 74;
+  --accent-ink: 33 29 26;
+  --accent-soft: 70 55 22;
+  --brand: 251 191 36;
+  --brand-ink: 33 29 26;
+  --danger: 248 124 110;
+  --danger-soft: 72 32 28;
+  --success: 150 205 110;
+  --warn: 252 200 74;
+  --warn-soft: 70 55 22;
   --shadow: 0 0 0;
 
-  --st-new: 148 158 176;
-  --st-ready: 96 156 245;
-  --st-progress: 236 176 64;
-  --st-accept: 172 132 245;
-  --st-done: 84 196 140;
+  --st-new: 170 154 250;
+  --st-ready: 246 150 128;
+  --st-progress: 250 196 70;
+  --st-accept: 104 206 180;
+  --st-done: 172 200 92;
 
-  --ty-bug: 248 118 112;
-  --ty-feature: 178 142 248;
-  --ty-fix: 236 176 64;
+  --col-new: 44 40 62;
+  --col-ready: 58 40 36;
+  --col-progress: 56 47 26;
+  --col-accept: 30 50 45;
+  --col-done: 42 48 30;
+
+  --ty-bug: 248 150 128;
+  --ty-feature: 180 162 252;
+  --ty-fix: 180 206 100;
 }
 
 @layer base {
   html {
     @apply bg-bg text-ink antialiased;
-    font-feature-settings: 'ss01' 1;
+    font-feature-settings: 'ss01' 0;
+    /* Plus Jakarta Sans ships a very narrow word space (about 0.14em); widen it to a normal ~0.26em. */
+    word-spacing: 0.12em;
     -webkit-text-size-adjust: 100%;
   }
   body {
     @apply min-h-screen bg-bg font-sans text-sm leading-normal;
+  }
+  input,
+  select,
+  textarea,
+  button {
+    word-spacing: inherit;
   }
   ::selection {
     background: rgb(var(--accent) / 0.22);
@@ -92,7 +118,7 @@
   }
   button:focus-visible,
   a:focus-visible {
-    border-radius: 6px;
+    border-radius: 9999px;
   }
   @media (prefers-reduced-motion: reduce) {
     *,

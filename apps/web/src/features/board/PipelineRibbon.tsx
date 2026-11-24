@@ -10,7 +10,7 @@ export function PipelineRibbon({ cards }: { cards: TicketCardDto[] }) {
   const summary = total === 0 ? 'No tickets yet' : counts.map((c) => `${c.n} ${STATE_LABELS[c.state]}`).join(', ');
   return (
     <div className="flex items-center gap-3">
-      <div role="img" aria-label={`Workflow: ${summary}`} className="flex h-2 min-w-0 flex-1 gap-[2px] overflow-hidden rounded-full">
+      <div role="img" aria-label={`Workflow: ${summary}`} className="flex h-3 min-w-0 flex-1 gap-[3px] overflow-hidden rounded-full">
         {total === 0 ? (
           <span className="h-full w-full rounded-full border border-dashed border-line-strong" />
         ) : (
@@ -20,13 +20,13 @@ export function PipelineRibbon({ cards }: { cards: TicketCardDto[] }) {
               <span
                 key={c.state}
                 title={`${STATE_LABELS[c.state]}: ${c.n}`}
-                className={cn('h-full min-w-[6px] transition-[flex-grow] duration-500 ease-out motion-reduce:transition-none', STATE_COLOR[c.state])}
+                className={cn('h-full min-w-[8px] rounded-full transition-[flex-grow] duration-500 ease-out motion-reduce:transition-none', STATE_COLOR[c.state])}
                 style={{ flexGrow: c.n }}
               />
             ))
         )}
       </div>
-      <span className="shrink-0 text-xs tabular-nums text-muted">{total === 0 ? '0 tickets' : `${done}/${total} done`}</span>
+      <span className="shrink-0 text-xs font-semibold tabular-nums text-ink-2">{total === 0 ? '0 tickets' : `${done}/${total} done`}</span>
     </div>
   );
 }
